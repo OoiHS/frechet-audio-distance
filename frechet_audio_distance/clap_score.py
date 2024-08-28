@@ -32,6 +32,7 @@ class CLAPScore:
         verbose=False,
         audio_load_worker=8,
         enable_fusion=False,
+        device="cuda",
     ):
         """
         Initialize CLAP score
@@ -44,7 +45,7 @@ class CLAPScore:
         assert submodel_name in ["630k-audioset", "630k", "music_audioset", "music_speech", "music_speech_audioset"]
         self.submodel_name = submodel_name
         self.sample_rate = 48000  # CLAP model sample rate
-        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+        self.device = torch.device(device)
         self.verbose = verbose
         self.audio_load_worker = audio_load_worker
         self.enable_fusion = enable_fusion
@@ -152,7 +153,7 @@ class CLAPScore:
                 audio = torch.tensor(audio).float().unsqueeze(0)
                 embd = self.model.get_audio_embedding_from_data(audio, use_tensor=True)
 
-                if self.device == torch.device('cuda'):
+                if self.device != torch.device("cpu"):
                     embd = embd.cpu()
 
                 if torch.is_tensor(embd):
