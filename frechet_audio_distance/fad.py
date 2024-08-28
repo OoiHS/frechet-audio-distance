@@ -36,6 +36,7 @@ class FrechetAudioDistance:
         verbose=False,
         audio_load_worker=8,
         enable_fusion=False,  # only for CLAP
+        device="cuda",
     ):
         """
         Initialize FAD
@@ -67,8 +68,7 @@ class FrechetAudioDistance:
         self.sample_rate = sample_rate
         self.channels = channels
         self.verbose = verbose
-        self.device = torch.device(
-            'cuda') if torch.cuda.is_available() else torch.device('mps') if torch.backends.mps.is_available() else torch.device('cpu')
+        self.device = torch.device(device)
         if self.device == torch.device('mps') and self.model_name == "clap":
             if self.verbose:
                 print("[Frechet Audio Distance] CLAP does not support MPS device yet, because:")
@@ -100,7 +100,7 @@ class FrechetAudioDistance:
         # vggish
         if model_name == "vggish":
             # S. Hershey et al., "CNN Architectures for Large-Scale Audio Classification", ICASSP 2017
-            self.model = torch.hub.load(repo_or_dir='harritaylor/torchvggish', model='vggish')
+            self.model = torch.hub.load(repo_or_dir='harritaylor/torchvggish', model='vggish', device=self.device)
             if not use_pca:
                 self.model.postprocess = False
             if not use_activation:
